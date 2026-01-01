@@ -709,73 +709,6 @@ def show_status(message):
 
     bot.reply_to(message, response)
 
-@bot.message_handler(commands=['broadcast'])
-def broadcast_message(message):
-    user_id = str(message.chat.id)
-    if user_id not in admin_id:
-        bot.reply_to(message, "⛔️ 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱: Admin only command")
-        return
-
-    args = message.text.split(maxsplit=1)
-    if len(args) != 2:
-        bot.reply_to(message, "📝 𝗨𝘀𝗮𝗴𝗲: /broadcast <message>")
-        return
-
-    broadcast_text = args[1]
-    try:
-        # Get all active users
-        cursor.execute("""
-            SELECT user_id, username 
-            FROM users 
-            WHERE expiration > NOW()
-            ORDER BY username
-        """)
-        users = cursor.fetchall()
-
-        if not users:
-            bot.reply_to(message, "❌ No active users found to broadcast to.")
-            return
-
-        # Track successful and failed broadcasts
-        success_count = 0
-        failed_users = []
-
-        # Send message to each user
-        for user_id, username in users:
-            try:
-                formatted_message = f"""
-📢 𝗕𝗥𝗢𝗔𝗗𝗖𝗔𝗦𝗧 𝗠𝗘𝗦𝗦𝗔𝗚𝗘
-
-{broadcast_text}
-
-━━━━━━━━━━━━━━━
-𝗦𝗲𝗻𝘁 𝗯𝘆: @{message.from_user.username}
-𝗧𝗶𝗺𝗲: {datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
-"""
-                bot.send_message(user_id, formatted_message)
-                success_count += 1
-                time.sleep(0.1)  # Prevent flooding
-            except Exception as e:
-                failed_users.append(f"@{username}")
-                logging.error(f"Failed to send broadcast to {username} ({user_id}): {e}")
-
-        # Send summary to admin
-        summary = f"""
-✅ 𝗕𝗿𝗼𝗮𝗱𝗰𝗮𝘀𝘁 𝗦𝘂𝗺𝗺𝗮𝗿𝘆:
-
-📨 𝗧𝗼𝘁𝗮𝗹 𝗨𝘀𝗲𝗿𝘀: {len(users)}
-✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹: {success_count}
-❌ 𝗙𝗮𝗶𝗹𝗲𝗱: {len(failed_users)}
-"""
-        if failed_users:
-            summary += f"\n❌ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘂𝘀𝗲𝗿𝘀:\n" + "\n".join(failed_users)
-
-        bot.reply_to(message, summary)
-
-    except Exception as e:
-        logging.error(f"Broadcast error: {e}")
-        bot.reply_to(message, f"❌ Error during broadcast: {str(e)}")
-
     
 @bot.message_handler(commands=['start'])
 def welcome_start(message):
@@ -824,29 +757,6 @@ def welcome_start(message):
 
 
 # Handler for broadcasting a message
-@bot.message_handler(commands=['broadcast'])
-def broadcast_message(message):
-    user_id = str(message.chat.id)
-    if user_id in admin_owner:
-        command = message.text.split(maxsplit=1)
-        if len(command) > 1:
-            message_to_broadcast = "Message To All Users By Admin:\n\n" + command[1]
-            users = read_users()  # Get users from Redis
-            if users:
-                for user in users:
-                    try:
-                        bot.send_message(user, message_to_broadcast)
-                    except Exception as e:
-                        print(f"Failed to send broadcast message to user {user}: {str(e)}")
-                response = "Broadcast Message Sent Successfully To All Users."
-            else:
-                response = "No users found in the system."
-        else:
-            response = "Please Provide A Message To Broadcast."
-    else:
-        response = "Only Admin Can Run This Command."
-
-    bot.reply_to(message, response)
 
 import threading
 
