@@ -39,7 +39,7 @@ def create_session():
     return session
 
 # Initialize bot with the session
-bot = telebot.TeleBot('7634552634:AAHN6Hzl74pgraNts42SNoMOaBnDbcurB00')
+bot = telebot.TeleBot('7634552634:AAGHuGOJPP5pqMeDMUcyd-b8dF0qe2xz5jE')
 bot.session = create_session()
 
 admin_id = ["7418099890"]
@@ -793,3 +793,4 @@ def run_bot():
 
 if __name__ == "__main__":
     run_bot()
+
