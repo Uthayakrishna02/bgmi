@@ -583,7 +583,7 @@ def execute_attack(message, target, port, time, attack_info):
     try:
         # Execute attack in a separate process instead of shell command
         attack_process = subprocess.Popen(
-            ["./soul", target, str(port), str(time), 80],
+            ["./soul", target, str(port), str(time), "80"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
